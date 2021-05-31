@@ -55,18 +55,98 @@
     <button>Trigger a Global Error</button>
   </section>
 
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
   <script>
+    window.TrackJS && TrackJS.install({ 
+      token: "ec4990c638d34a2ab3bf9a389b54a3da"
+      // for more configuration options, see https://docs.trackjs.com
+    });
+  </script>
+
+
+  <script>
+    class ForbidError extends Error {
+      constructor(message) {
+        super(message);
+        this.name = "ForbidError";
+      }
+    }
+
     let calculateBtn = document.querySelector('#calculate');
     calculateBtn.addEventListener('click', () => {
       let output = document.querySelector('output');
       let firstNum = document.querySelector('#first-num').value;
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+
+      try {
+        if(firstNum == 7) throw new ForbidError("7 is the forbidden number. Leave now.")
+        if(secondNum == 7) throw new ForbidError("7 is the forbidden number. Leave now.")
+        output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      } catch(err) {
+          if(err instanceof ForbidError) console.log(err)
+          else console.log("how did this happen")
+      } finally {
+        console.log("EOS")
+      }
+
+      
     });
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
-    // TODO - Make buttons functional
+    errorBtns[0].addEventListener('click', () => {
+      console.log("Nice Log!")
+    });
+
+    errorBtns[1].addEventListener('click', () => {
+      console.error("Like a log, but with more info.")
+    });
+
+    errorBtns[2].addEventListener('click', () => {
+      console.dir(document.head)
+    });
+
+    errorBtns[3].addEventListener('click', () => {
+      console.dirxml(document.head)
+    });
+
+    errorBtns[4].addEventListener('click', () => {
+      console.group("Grouped Error Msgs")
+    });
+
+    errorBtns[5].addEventListener('click', () => {
+      console.groupEnd("Grouped Error Msgs")
+    });
+    
+    errorBtns[6].addEventListener('click', () => {
+      console.table([{ msg: 'Hello',name:'You'},{msg:'Goodbye',name:'CSE110'}]);
+    });
+
+    errorBtns[7].addEventListener('click', () => {
+      console.time("timer")
+    });
+
+    errorBtns[8].addEventListener('click', () => {
+      console.timeEnd("timer")
+    });
+
+    errorBtns[9].addEventListener('click', () => {
+      const one = () => { two(); };
+      const two = () => { three(); };
+      const three = () => { four(); };
+      const four = () => { console.trace(); };
+      one();  
+    });
+
+    errorBtns[10].addEventListener('click', () => {
+      console.time(erroroneousError)
+    });
+
+    window.onerror = function(message, source, lineno) {
+      TrackJS.track(message)
+    };
+
+     
   </script>
 </body>
 </html>
